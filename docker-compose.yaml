@@ -1,0 +1,35 @@
+version: '3'
+services:
+  web:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "5000:5000"
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+
+  worker:
+    build: 
+      context: .
+      dockerfile: Dockerfile
+    command: python gemini_worker.py
+    depends_on:
+      rabbitmq:
+        condition: service_healthy
+    environment:
+      - GEMINI_API_KEY=YOUR_GEMINI_API_KEY
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    healthcheck:
+      test: ["CMD", "rabbitmq-diagnostics", "check_port_connectivity"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
