@@ -6,3 +6,4 @@ click
 pika
 google-generativeai
 retry
+python-dotenv

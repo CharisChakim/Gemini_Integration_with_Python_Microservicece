@@ -1,10 +1,15 @@
-# gemini_worker.py
+import os
 import pika
 import json
 import google.generativeai as genai
+from dotenv import load_dotenv
 
-# Configure Gemini API
-genai.configure(api_key='YOUR_GEMINI_API_KEY')
+
+load_dotenv() 
+
+api_key = os.getenv("GEMINI_API_KEY")
+
+genai.configure(api_key=api_key)
 model = genai.GenerativeModel('gemini-1.0-pro-latest')
 
 # RabbitMQ connection
@@ -18,10 +23,10 @@ def callback(ch, method, properties, body):
     request = json.loads(body)
     prompt = request['prompt']
 
-    # Generate response from Gemini
+# Generate response from Gemini
     response = model.generate_content(prompt)
 
-    # Publish response back to RabbitMQ
+# Publish response back
     channel.basic_publish(
         exchange='',
         routing_key=properties.reply_to,
